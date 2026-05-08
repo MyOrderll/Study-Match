@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyMatch</title>
+<style>
+:root{--bg1:#fff;--bg2:#f5f4f0;--t1:#1a1a1a;--t2:#6b6b6b;--b2:rgba(0,0,0,.2);--b3:rgba(0,0,0,.12);--b1:rgba(0,0,0,.35);--rm:8px;--rl:12px;--f:-apple-system,'Segoe UI',sans-serif}
+@media(prefers-color-scheme:dark){:root{--bg1:#1c1c1e;--bg2:#2c2c2e;--t1:#f2f2f7;--t2:#aeaeb2;--b2:rgba(255,255,255,.18);--b3:rgba(255,255,255,.1);--b1:rgba(255,255,255,.3)}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--f);background:var(--bg2);min-height:100vh;display:flex;justify-content:center;padding:.5rem}
+.wrap{width:100%;max-width:480px;min-height:100vh}
+.scr{display:none;animation:fi .3s ease}.scr.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes si{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+
+.card{background:var(--bg1);border:.5px solid var(--b3);border-radius:var(--rl);padding:1.2rem;margin-bottom:.75rem}
+.st{font-size:15px;font-weight:500;color:var(--t1);margin-bottom:4px}
+.ss{font-size:13px;color:var(--t2);margin-bottom:.8rem}
+
+.cg{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:6px 13px;border-radius:20px;border:.5px solid var(--b2);font-size:13px;cursor:pointer;color:var(--t2);background:var(--bg1);transition:all .2s;user-select:none}
+.chip:hover{border-color:#AFA9EC;color:#534AB7;background:#EEEDFE}
+.chip.sel{background:#EEEDFE;color:#534AB7;border-color:#AFA9EC;font-weight:500}
+
+.lgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.lcard{border:.5px solid var(--b3);border-radius:var(--rm);padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg1)}
+.lcard:hover{border-color:#AFA9EC;background:#EEEDFE}
+.lcard.sel{border:1.5px solid #7F77DD;background:#EEEDFE}
+
+.tgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.tslot{border:.5px solid var(--b3);border-radius:var(--rm);padding:9px 11px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px;background:var(--bg1)}
+.tslot:hover{border-color:#AFA9EC;background:#EEEDFE}
+.tslot.sel{border-color:#7F77DD;background:#EEEDFE}
+.tdot{width:7px;height:7px;border-radius:50%;background:var(--b3);flex-shrink:0;transition:all .2s}
+.tslot.sel .tdot{background:#7F77DD}
+.tslot.sel .tlbl{color:#534AB7;font-weight:500}
+.tlbl{font-size:13px;color:var(--t2)}
+
+.inp{width:100%;padding:10px 13px;border:.5px solid var(--b2);border-radius:var(--rm);font-size:14px;background:var(--bg1);color:var(--t1);outline:none;font-family:var(--f)}
+.inp:focus{border-color:#7F77DD;box-shadow:0 0 0 3px rgba(127,119,221,.12)}
+
+.bp{width:100%;padding:11px;background:#7F77DD;color:#fff;border:none;border-radius:var(--rm);font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;margin-top:1rem;font-family:var(--f)}
+.bp:hover{background:#534AB7}.bp:active{transform:scale(.98)}
+.bs{padding:8px 14px;background:transparent;color:var(--t2);border:.5px solid var(--b2);border-radius:var(--rm);font-size:13px;cursor:pointer;transition:all .2s;font-family:var(--f)}
+.bs:hover{color:var(--t1);border-color:var(--b1)}
+.bsm{padding:5px 11px;background:transparent;color:var(--t2);border:.5px solid var(--b2);border-radius:6px;font-size:12px;cursor:pointer;font-family:var(--f);transition:all .2s}
+.bsm:hover{color:var(--t1);border-color:var(--b1)}
+
+.sbar{display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:1.4rem}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--b3);transition:all .3s}
+.sdot.done{background:#7F77DD}.sdot.act{width:22px;border-radius:4px;background:#7F77DD}
+.sline{width:18px;height:1px;background:var(--b3)}
+
+.ring{width:52px;height:52px;border:3px solid #EEEDFE;border-top-color:#7F77DD;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1.5rem}
+.pbar{height:4px;background:var(--bg2);border-radius:2px;overflow:hidden;margin-top:7px}
+.pfill{height:100%;background:#7F77DD;border-radius:2px;transition:width 1s ease}
+
+.av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:14px;flex-shrink:0}
+.tag{padding:3px 9px;border-radius:12px;font-size:12px}
+.tp{background:#EEEDFE;color:#534AB7}.tt{background:#E1F5EE;color:#0F6E56}.ta{background:#FAEEDA;color:#854F0B}
+
+.mc{background:var(--bg1);border:.5px solid var(--b3);border-radius:var(--rl);padding:1.1rem;margin:0 1rem .7rem;transition:all .2s}
+.mc:hover{border-color:#AFA9EC;transform:translateY(-1px)}
+.mc.nm{border-left:3px solid #EF9F27}.mc.gc{border-left:3px solid #1D9E75}
+.mt{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sb{text-align:center;flex-shrink:0}
+.sn{font-size:19px;font-weight:500;color:#534AB7}.sl{font-size:10px;color:var(--t2)}
+.mtags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
+.mf{display:flex;gap:7px}
+.bc{flex:1;padding:8px;background:#7F77DD;color:#fff;border:none;border-radius:var(--rm);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;font-family:var(--f)}
+.bc:hover{background:#534AB7}
+.bsk{padding:8px 14px;background:transparent;color:var(--t2);border:.5px solid var(--b2);border-radius:var(--rm);font-size:13px;cursor:pointer;font-family:var(--f)}
+.bsk:hover{background:var(--bg2)}
+
+.fbar{display:flex;gap:7px;padding:0 1rem;margin-bottom:.9rem;overflow-x:auto;padding-bottom:3px}
+.fc{padding:5px 11px;border-radius:13px;border:.5px solid var(--b2);font-size:12px;cursor:pointer;white-space:nowrap;color:var(--t2);background:var(--bg1);transition:all .2s}
+.fc.act{background:#EEEDFE;color:#534AB7;border-color:#AFA9EC}
+
+.abox{background:#FAEEDA;border:.5px solid #FAC775;border-radius:var(--rm);padding:.85rem 1rem;margin:0 1rem .7rem;font-size:13px;color:#854F0B}
+.gbox{background:#E1F5EE;border:.5px solid #9FE1CB;border-radius:var(--rm);padding:.85rem 1rem;margin:0 1rem .7rem;font-size:13px;color:#0F6E56}
+.ebox{background:#FCEBEB;border:.5px solid #F09595;border-radius:var(--rm);padding:.85rem 1rem;margin-bottom:.7rem;display:flex;align-items:flex-start;gap:10px;font-size:13px;color:#A32D2D}
+
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:flex-end;justify-content:center;animation:fi .2s ease}
+.mb{background:var(--bg1);border-radius:var(--rl) var(--rl) 0 0;padding:1.5rem 1.2rem 2rem;width:100%;max-width:480px;animation:su .3s ease}
+.mc2{float:left;background:none;border:none;font-size:20px;cursor:pointer;color:var(--t2);line-height:1}
+
+.td{font-size:54px;font-weight:500;color:var(--t1);text-align:center;font-variant-numeric:tabular-nums;margin:1rem 0}
+.tctrl{display:flex;gap:8px;justify-content:center}
+.tbtn{padding:10px 22px;border-radius:var(--rm);font-size:14px;cursor:pointer;font-family:var(--f);transition:all .2s;font-weight:500}
+.ts{background:#7F77DD;color:#fff;border:none}.ts:hover{background:#534AB7}
+.tp2{background:var(--bg2);color:var(--t1);border:.5px solid var(--b2)}
+.tstop{background:#FCEBEB;color:#A32D2D;border:none}
+
+.si2{background:var(--bg1);border:.5px solid var(--b3);border-radius:var(--rm);padding:.85rem 1rem;margin-bottom:.6rem;display:flex;align-items:center;gap:10px}
+.sic{width:36px;height:36px;background:#EEEDFE;border-radius:var(--rm);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.star{font-size:22px;cursor:pointer;transition:all .15s;opacity:.3;user-select:none}
+.star.on{opacity:1}
+
+.lbi{display:flex;align-items:center;gap:10px;padding:.8rem 0;border-bottom:.5px solid var(--b3)}
+.lbi:last-child{border-bottom:none}
+.lbr{width:24px;font-size:13px;font-weight:500;color:var(--t2);text-align:center;flex-shrink:0}
+.lbr.top{color:#7F77DD}
+.lbp{font-size:13px;font-weight:500;color:#534AB7;margin-left:auto}
+
+.bgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.bi{background:var(--bg2);border-radius:var(--rm);padding:.85rem .6rem;text-align:center;border:.5px solid var(--b3)}
+.bi.on{background:#EEEDFE;border-color:#AFA9EC}
+.blk{opacity:.35}
+
+.sci{background:var(--bg1);border:.5px solid var(--b3);border-radius:var(--rm);padding:.85rem 1rem;margin-bottom:.6rem;display:flex;align-items:center;gap:10px;animation:si .3s ease both}
+.scd{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.sca{font-size:12px;color:#7F77DD;cursor:pointer;font-weight:500;white-space:nowrap;padding:5px 10px;border:.5px solid #AFA9EC;border-radius:6px;background:#EEEDFE;font-family:var(--f)}
+.sca:hover{background:#534AB7;color:#fff}
+
+.tcard{background:linear-gradient(135deg,#EEEDFE,#E1F5EE);border:.5px solid #AFA9EC;border-radius:var(--rl);padding:1rem 1.1rem;margin-bottom:.8rem}
+
+.nav{display:flex;background:var(--bg1);border-top:.5px solid var(--b3);position:sticky;bottom:0;z-index:10}
+.ni{flex:1;padding:10px 4px 8px;text-align:center;cursor:pointer;transition:all .2s;font-size:11px;color:var(--t2)}
+.ni.act{color:#7F77DD}
+.nic{font-size:18px;margin-bottom:2px}
+
+.pill{display:inline-flex;align-items:center;gap:5px;background:#EEEDFE;color:#534AB7;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:500}
+.gav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:11px;border:2px solid var(--bg1);margin-right:-8px}
+.tchip{padding:7px 14px;border-radius:20px;border:.5px solid var(--b2);font-size:13px;cursor:pointer;color:var(--t2);background:var(--bg1);transition:all .2s;user-select:none;margin:4px;display:inline-block}
+.tchip.sel{background:#EEEDFE;color:#534AB7;border-color:#AFA9EC;font-weight:500}
+.tchip.sug{border-color:#1D9E75;color:#0F6E56}
+</style>
+</head>
+<body><div class="wrap"><div id="app">
+
+<!-- ══ WELCOME ══ -->
+<div class="scr on" id="s-welcome">
+  <div style="text-align:center;padding:2.5rem 1rem 1.5rem">
+    <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:1.2rem">
+      <div style="width:42px;height:42px;background:#EEEDFE;border-radius:12px;display:flex;align-items:center;justify-content:center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7F77DD" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <span style="font-size:22px;font-weight:500;color:var(--t1)">Study<span style="color:#7F77DD">Match</span></span>
+    </div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:1.5rem;line-height:1.7">لقي study buddy مناسب ليك · جروبات · جدول ذكي<br>Timer · تقييمات · Leaderboard 🏆</p>
+    <button class="bp" style="max-width:300px" onclick="G('s-1')">ابدأ وعمل Profile ↗</button>
+    <p style="font-size:12px;color:var(--t2);margin-top:.8rem">أقل من دقيقتين · ماتحتاجش تسجل</p>
+  </div>
+  <div style="padding:0 1rem 1.5rem;display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+    <div class="card" style="text-align:center;padding:.9rem .6rem"><div style="font-size:20px;margin-bottom:5px">🎯</div><div style="font-size:11px;font-weight:500;color:var(--t1)">Matching ذكي</div></div>
+    <div class="card" style="text-align:center;padding:.9rem .6rem"><div style="font-size:20px;margin-bottom:5px">👥</div><div style="font-size:11px;font-weight:500;color:var(--t1)">جروبات 3–5</div></div>
+    <div class="card" style="text-align:center;padding:.9rem .6rem"><div style="font-size:20px;margin-bottom:5px">⏱️</div><div style="font-size:11px;font-weight:500;color:var(--t1)">Timer + نقاط</div></div>
+  </div>
+</div>
+
+<!-- ══ STEP 1 ══ -->
+<div class="scr" id="s-1" style="padding:1rem">
+  <div style="display:flex;align-items:center;gap:9px;margin-bottom:1.2rem">
+    <button class="bs" onclick="G('s-welcome')">← رجوع</button>
+    <div style="flex:1"></div><span style="font-size:13px;color:var(--t2)">1 / 4</span>
+  </div>
+  <div class="sbar"><div class="sdot act"></div><div class="sline"></div><div class="sdot"></div><div class="sline"></div><div class="sdot"></div><div class="sline"></div><div class="sdot"></div></div>
+  <div class="card">
+    <div class="st">اسمك إيه؟</div><div class="ss">عشان نعرف نناديك صح ✌️</div>
+    <input class="inp" id="n-inp" placeholder="مثال: أحمد، سارة..."/>
+  </div>
+  <div class="card">
+    <div class="st">المواد اللي بتذاكرها</div><div class="ss">اختار كل المواد المناسبة ليك</div>
+    <div class="cg" id="sub-g">
+      <div class="chip" onclick="tog(this,'s')">Data Structures</div><div class="chip" onclick="tog(this,'s')">Algorithms</div>
+      <div class="chip" onclick="tog(this,'s')">Calculus</div><div class="chip" onclick="tog(this,'s')">Linear Algebra</div>
+      <div class="chip" onclick="tog(this,'s')">Physics</div><div class="chip" onclick="tog(this,'s')">Chemistry</div>
+      <div class="chip" onclick="tog(this,'s')">Database</div><div class="chip" onclick="tog(this,'s')">Networks</div>
+      <div class="chip" onclick="tog(this,'s')">OS</div><div class="chip" onclick="tog(this,'s')">Statistics</div>
+      <div class="chip" onclick="tog(this,'s')">C++</div><div class="chip" onclick="tog(this,'s')">Python</div>
+      <div class="chip" onclick="tog(this,'s')">Java</div><div class="chip" onclick="tog(this,'s')">Math</div>
+    </div>
+  </div>
+  <button class="bp" onclick="s2()">التالي →</button>
+</div>
+
+<!-- ══ STEP 2 ══ -->
+<div class="scr" id="s-2" style="padding:1rem">
+  <div style="display:flex;align-items:center;gap:9px;margin-bottom:1.2rem">
+    <button class="bs" onclick="G('s-1')">← رجوع</button>
+    <div style="flex:1"></div><span style="font-size:13px;color:var(--t2)">2 / 4</span>
+  </div>
+  <div class="sbar"><div class="sdot done"></div><div class="sline"></div><div class="sdot act"></div><div class="sline"></div><div class="sdot"></div><div class="sline"></div><div class="sdot"></div></div>
+  <div class="card">
+    <div class="st">مستواك إيه؟</div><div class="ss">كن صريح — هيساعدنا نلاقي أفضل match</div>
+    <div class="lgrid">
+      <div class="lcard" onclick="selLv(this,'b')"><div style="font-size:20px;margin-bottom:5px">🌱</div><div style="font-size:13px;font-weight:500;color:var(--t1)">Beginner</div><div style="font-size:11px;color:var(--t2);margin-top:2px">لسه بابدأ</div></div>
+      <div class="lcard" onclick="selLv(this,'m')"><div style="font-size:20px;margin-bottom:5px">🔥</div><div style="font-size:13px;font-weight:500;color:var(--t1)">Intermediate</div><div style="font-size:11px;color:var(--t2);margin-top:2px">فاهم الأساسيات</div></div>
+      <div class="lcard" onclick="selLv(this,'a')"><div style="font-size:20px;margin-bottom:5px">⚡</div><div style="font-size:13px;font-weight:500;color:var(--t1)">Advanced</div><div style="font-size:11px;color:var(--t2);margin-top:2px">شاطر وعارف</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="st">طريقة مذاكرتك المفضلة</div><div class="ss">اختار أكتر من واحدة لو حابب</div>
+    <div class="cg">
+      <div class="chip" onclick="tog(this,'st')">💡 شرح وتوضيح</div><div class="chip" onclick="tog(this,'st')">✏️ حل مسائل</div>
+      <div class="chip" onclick="tog(this,'st')">📖 مراجعة نظري</div><div class="chip" onclick="tog(this,'st')">🧪 تطبيق عملي</div>
+      <div class="chip" onclick="tog(this,'st')">🎯 Mock exam</div><div class="chip" onclick="tog(this,'st')">💬 نقاش وسؤال</div>
+    </div>
+  </div>
+  <button class="bp" onclick="s3()">التالي →</button>
+</div>
+
+<!-- ══ STEP 3 ══ -->
+<div class="scr" id="s-3" style="padding:1rem">
+  <div style="display:flex;align-items:center;gap:9px;margin-bottom:1.2rem">
+    <button class="bs" onclick="G('s-2')">← رجوع</button>
+    <div style="flex:1"></div><span style="font-size:13px;color:var(--t2)">3 / 4</span>
+  </div>
+  <div class="sbar"><div class="sdot done"></div><div class="sline"></div><div class="sdot done"></div><div class="sline"></div><div class="sdot act"></div><div class="sline"></div><div class="sdot"></div></div>
+  <div class="card">
+    <div class="st">امتى بتكون متاح؟</div><div class="ss">اختار كل الأوقات المناسبة ليك</div>
+    <div class="tgrid">
+      <div class="tslot" onclick="togT(this)"><div class="tdot"></div><div class="tlbl">صبح (8–12)</div></div>
+      <div class="tslot" onclick="togT(this)"><div class="tdot"></div><div class="tlbl">ضهر (12–4)</div></div>
+      <div class="tslot" onclick="togT(this)"><div class="tdot"></div><div class="tlbl">مسا (4–8)</div></div>
+      <div class="tslot" onclick="togT(this)"><div class="tdot"></div><div class="tlbl">ليل (8–12)</div></div>
+      <div class="tslot" onclick="togT(this)"><div class="tdot"></div><div class="tlbl">أيام الأسبوع</div></div>
+      <div class="tslot" onclick="togT(this)"><div class="tdot"></div><div class="tlbl">أيام الأجازة</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="st">هدفك الأساسي</div><div class="ss">اختار واحد بس</div>
+    <div class="cg" id="gl-g">
+      <div class="chip" onclick="selG(this)">🏆 تحسين الدرجات</div><div class="chip" onclick="selG(this)">🧠 فهم أعمق</div>
+      <div class="chip" onclick="selG(this)">⚡ مذاكرة أسرع</div><div class="chip" onclick="selG(this)">😌 تقليل الضغط</div>
+      <div class="chip" onclick="selG(this)">📅 التزام منتظم</div>
+    </div>
+  </div>
+  <button class="bp" onclick="s4()">التالي →</button>
+</div>
+
+<!-- ══ STEP 4 PREVIEW ══ -->
+<div class="scr" id="s-4" style="padding:1rem">
+  <div style="display:flex;align-items:center;gap:9px;margin-bottom:1.2rem">
+    <button class="bs" onclick="G('s-3')">← رجوع</button>
+    <div style="flex:1"></div><span style="font-size:13px;color:var(--t2)">4 / 4</span>
+  </div>
+  <div class="sbar"><div class="sdot done"></div><div class="sline"></div><div class="sdot done"></div><div class="sline"></div><div class="sdot done"></div><div class="sline"></div><div class="sdot act"></div></div>
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:11px;margin-bottom:1rem;padding-bottom:1rem;border-bottom:.5px solid var(--b3)">
+      <div id="pav" class="av" style="background:#EEEDFE;color:#534AB7;font-size:16px">?</div>
+      <div><div id="pnm" style="font-size:15px;font-weight:500;color:var(--t1)">اسمك هنا</div><div id="plv" style="font-size:12px;color:var(--t2)">المستوى</div></div>
+      <div class="pill" style="margin-left:auto">⭐ 0 pts</div>
+    </div>
+    <div id="psb" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px"></div>
+    <div id="pdt" style="font-size:13px;color:var(--t2)"></div>
+  </div>
+  <button class="bp" onclick="doMatch()">ابحث عن Study Buddy ↗</button>
+</div>
+
+<!-- ══ LOADING ══ -->
+<div class="scr" id="s-load">
+  <div style="text-align:center;padding:2.5rem 1rem 1.5rem">
+    <div class="ring"></div>
+    <div style="font-size:15px;color:var(--t2)" id="ltxt">بنحلل الـ profile بتاعك...</div>
+    <div style="font-size:13px;color:var(--t2);margin-top:5px;opacity:.6">بنطابق مع 2,340+ طالب</div>
+  </div>
+  <div style="padding:0 1.5rem">
+    <div style="background:var(--bg2);border-radius:var(--rm);padding:.9rem;margin-bottom:.6rem"><div style="font-size:13px;color:var(--t2);margin-bottom:7px">تحليل المواد المشتركة</div><div class="pbar"><div class="pfill" id="b1" style="width:0%"></div></div></div>
+    <div style="background:var(--bg2);border-radius:var(--rm);padding:.9rem;margin-bottom:.6rem"><div style="font-size:13px;color:var(--t2);margin-bottom:7px">مطابقة المواعيد</div><div class="pbar"><div class="pfill" id="b2" style="width:0%"></div></div></div>
+    <div style="background:var(--bg2);border-radius:var(--rm);padding:.9rem"><div style="font-size:13px;color:var(--t2);margin-bottom:7px">توافق أسلوب المذاكرة</div><div class="pbar"><div class="pfill" id="b3" style="width:0%"></div></div></div>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ══ -->
+<div class="scr" id="s-main">
+  <div style="padding:.9rem 1rem .5rem;display:flex;align-items:center;justify-content:space-between">
+    <div><div style="font-size:16px;font-weight:500;color:var(--t1)" id="greet">أهلاً 👋</div><div style="font-size:12px;color:var(--t2)" id="gsub">اختار تاب من الأسفل</div></div>
+    <div class="pill" id="hpts">⭐ 0 pts</div>
+  </div>
+
+  <!-- TAB: MATCHES -->
+  <div id="tab-m">
+    <div class="fbar">
+      <div class="fc act" onclick="filt('all',this)">الكل</div>
+      <div class="fc" onclick="filt('high',this)">تطابق عالي</div>
+      <div class="fc" onclick="filt('groups',this)">👥 جروبات</div>
+      <div class="fc" onclick="filt('near',this)">🟡 قريبين</div>
+    </div>
+    <div id="mcnt"></div>
+  </div>
+
+  <!-- TAB: SCHEDULE -->
+  <div id="tab-s" style="display:none;padding:0 1rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem">
+      <div style="font-size:15px;font-weight:500;color:var(--t1)">جدولك الأسبوعي 📅</div>
+      <button class="bs" onclick="buildSch()" style="font-size:12px">🔄 تحديث</button>
+    </div>
+    <div id="scnt"></div>
+    <div class="gbox" style="margin:0 0 .7rem">💡 الجدول بيتغير تلقائياً لو حد ألغى — شيكه كل يوم!</div>
+  </div>
+
+  <!-- TAB: TIMER -->
+  <div id="tab-t" style="display:none;padding:0 1rem">
+    <div class="card" style="text-align:center">
+      <div style="font-size:13px;color:var(--t2);margin-bottom:.4rem">جلسة مذاكرة مع</div>
+      <div style="font-size:15px;font-weight:500;color:var(--t1);margin-bottom:.9rem" id="tpart">—</div>
+      <div class="td" id="tdisp">90:00</div>
+      <div style="font-size:13px;color:var(--t2);margin-bottom:1rem">اختار المدة</div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:1rem">
+        <div class="chip" id="td60" onclick="setDur(60,this)">60 د</div>
+        <div class="chip sel" id="td90" onclick="setDur(90,this)">90 د</div>
+        <div class="chip" id="td120" onclick="setDur(120,this)">120 د</div>
+      </div>
+      <div class="tctrl">
+        <button class="tbtn ts" id="btn-st" onclick="startT()">▶ ابدأ</button>
+        <button class="tbtn tp2" id="btn-pa" onclick="pauseT()" style="display:none">⏸ وقف</button>
+        <button class="tbtn tstop" id="btn-sp" onclick="stopT()" style="display:none">■ خلاص</button>
+      </div>
+    </div>
+    <div id="rate-sec" style="display:none">
+      <div class="card">
+        <div class="st">قيّم الجلسة دي 🌟</div><div class="ss">هيساعد في تحسين الـ matching للكل</div>
+        <div style="margin-bottom:.8rem">
+          <div style="font-size:13px;color:var(--t2);margin-bottom:5px">الالتزام بالوقت</div>
+          <div id="st-c" style="display:flex;gap:6px"><span class="star" onclick="rate('c',1)">★</span><span class="star" onclick="rate('c',2)">★</span><span class="star" onclick="rate('c',3)">★</span><span class="star" onclick="rate('c',4)">★</span><span class="star" onclick="rate('c',5)">★</span></div>
+        </div>
+        <div style="margin-bottom:1rem">
+          <div style="font-size:13px;color:var(--t2);margin-bottom:5px">جودة الشرح والمساعدة</div>
+          <div id="st-q" style="display:flex;gap:6px"><span class="star" onclick="rate('q',1)">★</span><span class="star" onclick="rate('q',2)">★</span><span class="star" onclick="rate('q',3)">★</span><span class="star" onclick="rate('q',4)">★</span><span class="star" onclick="rate('q',5)">★</span></div>
+        </div>
+        <button class="bp" onclick="saveSess()" style="margin-top:0">✓ احفظ الجلسة وأضف النقاط</button>
+      </div>
+    </div>
+    <div style="margin-top:.5rem"><div style="font-size:14px;font-weight:500;color:var(--t1);margin-bottom:.6rem">الجلسات السابقة</div><div id="sess-l"></div></div>
+  </div>
+
+  <!-- TAB: LEADERBOARD -->
+  <div id="tab-l" style="display:none;padding:0 1rem">
+    <div style="display:flex;gap:8px;margin-bottom:.9rem">
+      <div class="fc act" onclick="lbSw('lb',this)" style="flex:1;text-align:center">🏆 Leaderboard</div>
+      <div class="fc" onclick="lbSw('bd',this)" style="flex:1;text-align:center">🎖 Badges</div>
+    </div>
+    <div id="lb-w"><div class="card"><div id="lb-l"></div></div></div>
+    <div id="bd-w" style="display:none"><div class="card"><div class="st" style="margin-bottom:.9rem">الـ Badges بتاعتك</div><div class="bgrid" id="bd-l"></div></div></div>
+  </div>
+
+  <div class="nav">
+    <div class="ni act" id="nv-m" onclick="tab('m')"><div class="nic">🔍</div>Matches</div>
+    <div class="ni" id="nv-s" onclick="tab('s')"><div class="nic">📅</div>جدول</div>
+    <div class="ni" id="nv-t" onclick="tab('t')"><div class="nic">⏱️</div>Timer</div>
+    <div class="ni" id="nv-l" onclick="tab('l')"><div class="nic">🏆</div>Ranks</div>
+  </div>
+</div>
+
+<!-- ══ CONNECTED ══ -->
+<div class="scr" id="s-conn">
+  <div style="text-align:center;padding:2.5rem 1.5rem">
+    <div style="width:60px;height:60px;background:#E1F5EE;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0F6E56" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2 style="font-size:20px;font-weight:500;margin-bottom:7px;color:var(--t1)" id="ctit">تم الاتصال! 🎉</h2>
+    <p style="font-size:14px;color:var(--t2);margin-bottom:1.5rem" id="cmsg"></p>
+    <div class="tcard" style="text-align:right">
+      <div style="font-size:13px;font-weight:500;color:var(--t1);margin-bottom:8px">💡 نصايح مخصصة ليك</div>
+      <div id="tips" style="font-size:13px;color:var(--t2);line-height:2.1"></div>
+    </div>
+    <button class="bp" id="cstart">ابدأ جلسة مذاكرة ⏱️</button>
+    <br><button class="bs" style="margin-top:.6rem;width:100%" onclick="G('s-main')">رجوع للـ Matches</button>
+  </div>
+</div>
+
+<!-- ══ TIME MODAL ══ -->
+<div id="mod-t" style="display:none">
+  <div class="ov" onclick="closeMod('mod-t')">
+    <div class="mb" onclick="event.stopPropagation()">
+      <button class="mc2" onclick="closeMod('mod-t')">✕</button>
+      <div style="font-size:16px;font-weight:500;color:var(--t1);margin-bottom:.5rem">اقترح وقت بديل 🕐</div>
+      <div style="font-size:13px;color:var(--t2);margin-bottom:1.2rem">اختار وقت تاني مناسب مع <strong id="mpn"></strong></div>
+      <div id="tch-w" style="margin-bottom:1rem"></div>
+      <button class="bp" style="margin-top:0" onclick="sendTP()">✓ ابعت الاقتراح</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REPLACE MODAL ══ -->
+<div id="mod-r" style="display:none">
+  <div class="ov" onclick="closeMod('mod-r')">
+    <div class="mb" onclick="event.stopPropagation()">
+      <button class="mc2" onclick="closeMod('mod-r')">✕</button>
+      <div style="font-size:16px;font-weight:500;color:var(--t1);margin-bottom:.5rem">🚨 حد ألغى الجلسة!</div>
+      <div style="font-size:13px;color:var(--t2);margin-bottom:1rem">بنلاقيلك بديل مناسب دلوقتي...</div>
+      <div id="rl" style="text-align:center;padding:1rem 0"><div class="ring" style="width:36px;height:36px;border-width:2px;margin-bottom:.7rem"></div><div style="font-size:13px;color:var(--t2)">بنبحث عن بديل...</div></div>
+      <div id="rr" style="display:none">
+        <div class="card" id="rc" style="margin-bottom:.8rem"></div>
+        <button class="bp" style="margin-top:0" onclick="accReplace()">✓ تمام، ابدأ معاه</button>
+        <button class="bs" style="margin-top:.5rem;width:100%" onclick="closeMod('mod-r')">لأ، شوف بديل تاني</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div></div>
+
+<script>
+// ══ STATE ══
+const U={name:'',subs:[],level:'',styles:[],times:[],goal:'',pts:0,sessions:[],ratings:{c:0,q:0},partner:'',pType:'',filt:'all'};
+let connCnt=0,modPid=null,repId=null,tIv=null,tSec=90*60,tRun=false,tDur=90;
+
+// ══ BIG DATABASE (16 people + 4 groups + 3 near-miss) ══
+const DB=[
+  // 1v1
+  {id:1,nm:'أحمد يوسف',in:'أي',bg:'#EEEDFE',tc:'#534AB7',lv:'m',subs:['Data Structures','Algorithms','Database','C++'],times:['مسا (4–8)','ليل (8–12)','أيام الأسبوع'],goal:'🧠 فهم أعمق',base:82,rat:4.8,type:'p',styles:['💡 شرح وتوضيح','✏️ حل مسائل'],
+    T:['📚 مشهور بأسلوب شرح ممتاز — جهز أسئلتك قبل الجلسة بيوم',
+       '📊 نفس مستواك تقريباً — هتبنوا فهم مشترك وتتكاملوا',
+       '⏰ بيفضل السهر — كون مركز ومش على موبايل',
+       '🎯 ابدأ بالـ Data Structures إذا في مادة مشتركة — هو فيها قوي جداً']},
+
+  {id:2,nm:'سارة محمد',in:'سم',bg:'#E1F5EE',tc:'#0F6E56',lv:'b',subs:['Data Structures','Calculus','Statistics','Python'],times:['صبح (8–12)','أيام الأسبوع'],goal:'🏆 تحسين الدرجات',base:75,rat:4.5,type:'p',styles:['📖 مراجعة نظري','💬 نقاش وسؤال'],
+    T:['📚 بتعمل summaries منظمة لكل topic — جيب الـ notes بتاعتك',
+       '📊 مستواها أقل — لو شرحتلها هتثبت المعلومات عندك أنت',
+       '⏰ صبح مبكر — تأكد إنك صاحي ومركز قبل الجلسة',
+       '🎯 بتركز على الـ past papers والأسئلة المتوقعة — مناسب لتحسين الدرجات']},
+
+  {id:3,nm:'كريم عبدالله',in:'كع',bg:'#FAEEDA',tc:'#854F0B',lv:'a',subs:['Algorithms','Networks','OS','C++'],times:['ليل (8–12)','أيام الأجازة'],goal:'⚡ مذاكرة أسرع',base:74,rat:4.2,type:'p',styles:['🎯 Mock exam','💬 نقاش وسؤال'],
+    T:['📚 بيعمل mock exams بالوقت — جهز نفسك للـ pressure وجيب مسودة',
+       '📊 Advanced — استغل الوقت واسأل في الـ edge cases والـ tricky parts',
+       '⏰ سهر متأخر — نام كويس قبلها بساعتين على الأقل وجيب قهوة 😄',
+       '🎯 بيذاكر بسرعة عالية — حدد topic واحدة بوضوح عشان متضيعوش']},
+
+  {id:4,nm:'منة الرحمن',in:'من',bg:'#FBEAF0',tc:'#993556',lv:'m',subs:['Calculus','Linear Algebra','Physics','Statistics'],times:['ضهر (12–4)','مسا (4–8)','أيام الأسبوع'],goal:'📅 التزام منتظم',base:80,rat:4.6,type:'p',styles:['✏️ حل مسائل','🧪 تطبيق عملي'],
+    T:['📚 بتحل مسائل بالتسلسل — جهز مسائل unsolved من الكتاب',
+       '📊 نفس مستواك — هتتنافسوا وتتحفزوا مع بعض بشكل صحي',
+       '⏰ ملتزمة بالمواعيد جداً — متأخرش ولو دقيقة واحدة!',
+       '🎯 مناسبة جداً للـ consistency — اتفقوا على جلسة أسبوعية ثابتة']},
+
+  {id:5,nm:'عمر حسام',in:'عح',bg:'#E8F4FD',tc:'#1A6FA8',lv:'b',subs:['Python','Database','Networks'],times:['مسا (4–8)','أيام الأجازة'],goal:'🧠 فهم أعمق',base:71,rat:4.1,type:'p',styles:['🧪 تطبيق عملي','💡 شرح وتوضيح'],
+    T:['📚 بيحب يعمل mini-projects — جيب فكرة project صغيرة وابنوها مع بعض',
+       '📊 Beginner زيك — هتكتشفوا مع بعض وده أحياناً أحسن من الشرح',
+       '⏰ أجازة بس — جلسات طويلة ومريحة بدون ضغط',
+       '🎯 ركزوا على الـ hands-on أكتر من النظري — هو بيتعلم كده']},
+
+  {id:6,nm:'نادية سامي',in:'نس',bg:'#FDF0E8',tc:'#A05A2C',lv:'a',subs:['Calculus','Linear Algebra','Statistics','Python'],times:['صبح (8–12)','ضهر (12–4)','أيام الأسبوع'],goal:'🏆 تحسين الدرجات',base:77,rat:4.9,type:'p',styles:['💡 شرح وتوضيح','📖 مراجعة نظري'],
+    T:['📚 متخصصة في الرياضيات — اسألها في الـ proofs والـ derivations',
+       '📊 أعلى منك بمرحلة — فرصة ذهبية متفوتش، اسأل كتير بدون خجل',
+       '⏰ صبح أو ضهر — ذاكرتها في أحسن حالاتها وتركيزها عالي',
+       '🎯 بتركز على الفهم العميق — هتساعدك تحسن درجاتك من جذورها']},
+
+  {id:7,nm:'يوسف طارق',in:'يط',bg:'#EDF7EE',tc:'#2D7A3E',lv:'m',subs:['OS','Networks','Database'],times:['ليل (8–12)','أيام الأسبوع','أيام الأجازة'],goal:'⚡ مذاكرة أسرع',base:68,rat:4.0,type:'p',styles:['🎯 Mock exam','✏️ حل مسائل'],
+    T:['📚 بيحب يحل past papers كل جلسة — جيب past papers معاك',
+       '📊 نفس مستواك — تنافس صحي وتحفيز متبادل',
+       '⏰ سهر — خليك بعيد عن الـ social media وعمل silent mode',
+       '🎯 بيذاكر على وقت — خليكم تحلوا مسائل بـ timer عشان تتعودوا']},
+
+  {id:8,nm:'هنا إبراهيم',in:'هإ',bg:'#F5EEFF',tc:'#6B35B5',lv:'b',subs:['Calculus','Chemistry','Physics'],times:['ضهر (12–4)','أيام الأسبوع'],goal:'😌 تقليل الضغط',base:65,rat:4.3,type:'p',styles:['💬 نقاش وسؤال','📖 مراجعة نظري'],
+    T:['📚 مش بتحب الضغط — خلي الجلسة هادية ومنظمة وابدأ بالأسهل',
+       '📊 Beginner زيك — جو مريح ومفيش حد يحكم على التاني',
+       '⏰ ضهر هادي — مناسب جداً للتركيز بدون ضغط خارجي',
+       '🎯 ابدأ بمراجعة الـ basics مع بعض — الأساس أهم من الكميه']},
+
+  {id:9,nm:'خالد منصور',in:'خم',bg:'#E6F0FF',tc:'#1A4FA8',lv:'a',subs:['Algorithms','Data Structures','C++','OS'],times:['مسا (4–8)','ليل (8–12)'],goal:'⚡ مذاكرة أسرع',base:76,rat:4.7,type:'p',styles:['🎯 Mock exam','💡 شرح وتوضيح'],
+    T:['📚 بيذاكر زي competitive programmer — هتتعلم منه technique الـ problem solving',
+       '📊 Advanced — فرصة تشوف إزاي الناس الأشطر بتفكر وبتتعامل مع المشاكل',
+       '⏰ مسا أو سهر — جاهز دايماً ومش بيلغي',
+       '🎯 حدد مسألة معينة أو concept وخليه يشرحلك نهجه فيها']},
+
+  {id:10,nm:'ريم فاروق',in:'رف',bg:'#FFF0F5',tc:'#993556',lv:'m',subs:['Statistics','Linear Algebra','Python'],times:['صبح (8–12)','ضهر (12–4)','أيام الأجازة'],goal:'🧠 فهم أعمق',base:73,rat:4.4,type:'p',styles:['💬 نقاش وسؤال','🧪 تطبيق عملي'],
+    T:['📚 بتربط الـ Statistics بـ Python applications — تطبيق عملي جداً',
+       '📊 نفس مستواك — هتتعاونوا وتعملوا projects مع بعض',
+       '⏰ مرنة في المواعيد — سهل تتفق معاها',
+       '🎯 اقترح تعملوا data analysis project صغير مع بعض']},
+
+  {id:11,nm:'مريم الشريف',in:'مش',bg:'#F0FFF4',tc:'#276749',lv:'m',subs:['Math','Calculus','Linear Algebra','Statistics'],times:['مسا (4–8)','أيام الأسبوع','أيام الأجازة'],goal:'🏆 تحسين الدرجات',base:79,rat:4.6,type:'p',styles:['📖 مراجعة نظري','✏️ حل مسائل'],
+    T:['📚 عندها طريقة مميزة في حل المسائل خطوة بخطوة — اتعلمها',
+       '📊 نفس مستواك — هتتفاهموا بسهولة',
+       '⏰ مسا أو أجازة — متاحة ومنظمة',
+       '🎯 مناسبة لتحسين درجات الرياضيات — بتركز على الـ full mark']},
+
+  {id:12,nm:'أنس البدري',in:'أب',bg:'#FFFAF0',tc:'#7B5E00',lv:'a',subs:['Networks','OS','Database','Java'],times:['ليل (8–12)','أيام الأجازة'],goal:'🧠 فهم أعمق',base:72,rat:4.3,type:'p',styles:['💬 نقاش وسؤال','🎯 Mock exam'],
+    T:['📚 بيفهم الـ systems على عمق — اسأله عن الـ internals مش بس السطح',
+       '📊 Advanced — استغل الجلسة وادخل في تفاصيل مش موجودة في الـ slides',
+       '⏰ سهر أو أجازة — بيفضل الجلسات الطويلة',
+       '🎯 اقترح تبنوا مع بعض مشروع صغير بـ Java يجمع الـ topics']},
+
+  {id:13,nm:'لمياء حسن',in:'لح',bg:'#F5F0FF',tc:'#5B21B6',lv:'b',subs:['Python','Statistics','Math'],times:['صبح (8–12)','ضهر (12–4)'],goal:'😌 تقليل الضغط',base:67,rat:4.2,type:'p',styles:['💬 نقاش وسؤال','📖 مراجعة نظري'],
+    T:['📚 Beginner ومحتاجة تفاهم وصبر — خلي الجلسة تشجيعية ومريحة',
+       '📊 نفس المستوى تقريباً — هتتعاونوا ومفيش فرق بينكم',
+       '⏰ صبح أو ضهر — هادية ومركزة في الأوقات دي',
+       '🎯 ابدأوا بـ Python من أول — Basics وبعدين Statistics']},
+
+  {id:14,nm:'زياد العمر',in:'زع',bg:'#F0F7FF',tc:'#1E40AF',lv:'m',subs:['Java','Database','Networks','OS'],times:['مسا (4–8)','ليل (8–12)','أيام الأسبوع'],goal:'⚡ مذاكرة أسرع',base:74,rat:4.5,type:'p',styles:['✏️ حل مسائل','🧪 تطبيق عملي'],
+    T:['📚 بيبني projects صغيرة وهو بيذاكر — تعلم منه الـ project-based approach',
+       '📊 نفس مستواك — تنافس ومحفز',
+       '⏰ مسا وسهر — active ومش بيتعب',
+       '🎯 اقترح تعملوا backend project بسيط يجمع Java و Database']},
+
+  {id:15,nm:'رنا قاسم',in:'رق',bg:'#FFF5F5',tc:'#9B1C1C',lv:'b',subs:['Calculus','Physics','Chemistry'],times:['ضهر (12–4)','أيام الأسبوع'],goal:'🏆 تحسين الدرجات',base:63,rat:4.0,type:'p',styles:['📖 مراجعة نظري','💬 نقاش وسؤال'],
+    T:['📚 بتذاكر من الكتاب خطوة بخطوة — جيب الكتاب والـ slides',
+       '📊 Beginner — خليك صبور وشجعها، هيرجعلك بالنهاية',
+       '⏰ ضهر — وقت هادي ومناسب',
+       '🎯 ركزوا على فهم الـ fundamentals — الدرجات هتيجي وحدها']},
+
+  {id:16,nm:'باسم ناصر',in:'بن',bg:'#F0FFF8',tc:'#065F46',lv:'a',subs:['Data Structures','Algorithms','Math','C++'],times:['صبح (8–12)','مسا (4–8)','أيام الأجازة'],goal:'⚡ مذاكرة أسرع',base:80,rat:4.8,type:'p',styles:['🎯 Mock exam','✏️ حل مسائل'],
+    T:['📚 بيحل مسائل competitive بسرعة كبيرة — تعلم منه الـ speed techniques',
+       '📊 Advanced — هيرفع مستواك بشكل واضح لو اتعاملت معاه صح',
+       '⏰ صبح أو مسا — منظم ومش بيلغي أبداً',
+       '🎯 جيب مسائل من LeetCode أو Codeforces وحلوها مع بعض']},
+
+  // GROUPS
+  {id:17,nm:'جروب Data Structures',in:'DS',bg:'#E1F5EE',tc:'#0F6E56',lv:'m',subs:['Data Structures','Algorithms','C++'],times:['مسا (4–8)','أيام الأسبوع'],goal:'🧠 فهم أعمق',base:86,rat:4.6,type:'g',members:['أحمد','سارة','علي','ريم'],size:4,styles:['💡 شرح وتوضيح','✏️ حل مسائل'],
+    T:['📚 في agenda لكل جلسة — راجعها على الـ group chat قبل ما تيجي',
+       '📊 Mixed levels — هتتعلم من ناس أشطر وكمان هتشرح لناس أقل',
+       '⏰ منظمين بجد — لو اتأخرت هتلاقي الجلسة وسطها',
+       '🎯 كل واحد بيجيب مسألة مش عارف يحلها — ده بيخلي الجلسة productive جداً']},
+
+  {id:18,nm:'جروب Algorithms Pro',in:'AL',bg:'#EEEDFE',tc:'#534AB7',lv:'m',subs:['Algorithms','Calculus','C++'],times:['ليل (8–12)','أيام الأجازة'],goal:'⚡ مذاكرة أسرع',base:72,rat:4.3,type:'g',members:['كريم','ياسمين','مي','عمر'],size:4,styles:['🎯 Mock exam','💬 نقاش وسؤال'],
+    T:['📚 بيحلوا competitive programming على Codeforces — جهز account لو مش عندك',
+       '📊 Intermediate-Advanced — مستوى عالي وجدي',
+       '⏰ سهر متأخر — مناسب للجادين اللي مش بيتعبوا',
+       '🎯 كل جلسة بيعملوا mini contest بين بعض — تحدي صحي']},
+
+  {id:19,nm:'جروب الفيزيا والكيمياء',in:'FK',bg:'#FDF0E8',tc:'#A05A2C',lv:'b',subs:['Physics','Chemistry','Calculus','Math'],times:['صبح (8–12)','ضهر (12–4)','أيام الأسبوع'],goal:'🏆 تحسين الدرجات',base:70,rat:4.4,type:'g',members:['هنا','سارة','نور','رنا'],size:4,styles:['📖 مراجعة نظري','✏️ حل مسائل'],
+    T:['📚 بيراجعوا الـ sheets مع بعض قبل الامتحان — جيب الـ sheet الأخيرة',
+       '📊 Beginner-friendly — جو مريح ومش مضغوط ومفيش حد يحكم',
+       '⏰ صبح أو ضهر — يوميات منتظمة ومرتبة',
+       '🎯 بيعملوا Q&A sessions قبل الامتحان بأسبوع — جداً مفيدة']},
+
+  {id:20,nm:'جروب Python & Database',in:'PY',bg:'#E8F4FD',tc:'#1A6FA8',lv:'m',subs:['Python','Database','Networks','Java'],times:['مسا (4–8)','أيام الأجازة'],goal:'🧠 فهم أعمق',base:75,rat:4.5,type:'g',members:['عمر','يوسف','ليلى','أحمد','نادر'],size:5,styles:['🧪 تطبيق عملي','💡 شرح وتوضيح'],
+    T:['📚 بيعملوا mini-projects كل أسبوع — فكر في فكرة project بسيطة وجيبها',
+       '📊 Intermediate — متوازنين ومتعاونين',
+       '⏰ مسا أو أجازة — وقت كافي للـ coding والـ debugging',
+       '🎯 كل project بيتحط على GitHub — فرصة تبني portfolio']},
+
+  // NEAR MISS
+  {id:21,nm:'ياسمين علي',in:'يع',bg:'#FBEAF0',tc:'#993556',lv:'m',subs:['Linear Algebra','Calculus','Statistics'],times:['ضهر (12–4)'],goal:'📅 التزام منتظم',base:55,rat:4.0,type:'n',nearR:'نفس المادة · بتذاكر الضهر بس',altT:['مسا (4–8)','ليل (8–12)','أيام الأجازة'],
+    T:['📚 تطابق ممتاز في المواد — لو اتفقتوا في الوقت هيبقى perfect match',
+       '📊 نفس مستواك — هتتكاملوا كويس جداً',
+       '⏰ بتذاكر الضهر بس حالياً — اقترح مسا أو أجازة وشوف ردها',
+       '🎯 الفرصة كبيرة — وقت واحد فارق بس عن الـ perfect match']},
+
+  {id:22,nm:'طارق محمود',in:'طم',bg:'#EDF7EE',tc:'#2D7A3E',lv:'b',subs:['Data Structures','Python'],times:['صبح (8–12)'],goal:'🧠 فهم أعمق',base:52,rat:3.9,type:'n',nearR:'نفس المواد · بيذاكر الصبح بس',altT:['ضهر (12–4)','أيام الأجازة'],
+    T:['📚 نفس المواد بالظبط — لو اتفقتوا في الوقت هيبقى ideal',
+       '📊 Beginner زيك — راحة في التعامل ومفيش فجوة',
+       '⏰ صبح بس حالياً — ممكن يمد للضهر أو أجازة لو اقترحت',
+       '🎯 جرب تكلمه وتقترح وقت تاني — محتمل يوافق']},
+
+  {id:23,nm:'دينا العسكري',in:'دع',bg:'#FFF9E6',tc:'#7B5E00',lv:'m',subs:['Calculus','Math','Physics'],times:['أيام الأجازة'],goal:'🏆 تحسين الدرجات',base:58,rat:4.1,type:'n',nearR:'نفس المادة · بتذاكر أجازة بس',altT:['مسا (4–8)','ليل (8–12)','أيام الأسبوع'],
+    T:['📚 مواد رياضية وهندسية — تطابق كويس في المحتوى',
+       '📊 نفس مستواك — هتتعاونوا بشكل ممتاز',
+       '⏰ أجازة بس حالياً — اقترح يوم في الأسبوع كمان',
+       '🎯 لو اتفقتوا على يومين في الأسبوع هيبقى match ممتاز']},
+];
+
+const LB=[
+  {nm:'باسم ناصر',in:'بن',bg:'#F0FFF8',tc:'#065F46',pts:1580,rank:1},
+  {nm:'كريم عبدالله',in:'كع',bg:'#FAEEDA',tc:'#854F0B',pts:1240,rank:2},
+  {nm:'نادية سامي',in:'نس',bg:'#FDF0E8',tc:'#A05A2C',pts:1050,rank:3},
+  {nm:'خالد منصور',in:'خم',bg:'#E6F0FF',tc:'#1A4FA8',pts:920,rank:4},
+  {nm:'أحمد يوسف',in:'أي',bg:'#EEEDFE',tc:'#534AB7',pts:870,rank:5},
+  {nm:'منة الرحمن',in:'من',bg:'#FBEAF0',tc:'#993556',pts:710,rank:6},
+  {nm:'سارة محمد',in:'سم',bg:'#E1F5EE',tc:'#0F6E56',pts:590,rank:7},
+  {nm:'أنت',in:'?',bg:'#CECBF6',tc:'#534AB7',pts:0,rank:8,me:true},
+];
+
+const BADGES=[
+  {icon:'🏆',nm:'Top Learner',desc:'أكتر نقاط في الأسبوع',on:false},
+  {icon:'🔥',nm:'5 Sessions',desc:'أنهيت 5 جلسات',on:false},
+  {icon:'⚡',nm:'Most Active',desc:'3 جلسات في أسبوع',on:false},
+  {icon:'🌟',nm:'5-Star Buddy',desc:'تقييم 5 نجوم',on:false},
+  {icon:'🤝',nm:'Connector',desc:'تواصلت مع 3 buddies',on:false},
+  {icon:'📅',nm:'Consistent',desc:'جلسة كل يوم لأسبوع',on:false},
+];
+
+// ══ NAVIGATION ══
+function G(id){document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');}
+
+function tab(n){
+  ['m','s','t','l'].forEach(x=>{
+    document.getElementById('tab-'+x).style.display=x===n?'':'none';
+    document.getElementById('nv-'+x).classList.toggle('act',x===n);
+  });
+  if(n==='s') buildSch();
+}
+
+// ══ FORM HELPERS ══
+function tog(el,t){
+  el.classList.toggle('sel');
+  if(t==='s') U.subs=[...document.querySelectorAll('#sub-g .chip.sel')].map(c=>c.textContent);
+  if(t==='st') U.styles=[...document.querySelectorAll('#s-2 .chip.sel')].map(c=>c.textContent.trim());
+}
+function togT(el){el.classList.toggle('sel');U.times=[...document.querySelectorAll('.tslot.sel .tlbl')].map(c=>c.textContent);}
+function selLv(el,l){document.querySelectorAll('.lcard').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');U.level=l;}
+function selG(el){document.querySelectorAll('#gl-g .chip').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');U.goal=el.textContent.trim();}
+
+function s2(){U.name=document.getElementById('n-inp').value.trim();if(!U.name){toast('⚠️ اكتب اسمك الأول');return;}if(!U.subs.length){toast('⚠️ اختار مادة واحدة على الأقل');return;}G('s-2');}
+function s3(){if(!U.level){toast('⚠️ اختار مستواك');return;}G('s-3');}
+function s4(){if(!U.times.length){toast('⚠️ اختار وقت واحد على الأقل');return;}if(!U.goal){toast('⚠️ اختار هدفك');return;}buildPrev();G('s-4');}
+
+function buildPrev(){
+  document.getElementById('pav').textContent=U.name[0].toUpperCase();
+  document.getElementById('pnm').textContent=U.name;
+  const lm={b:'🌱 Beginner',m:'🔥 Intermediate',a:'⚡ Advanced'};
+  document.getElementById('plv').textContent=lm[U.level]||'';
+  document.getElementById('psb').innerHTML=U.subs.slice(0,4).map(s=>`<div class="tag tp">${s}</div>`).join('')+(U.subs.length>4?`<div class="tag tp">+${U.subs.length-4}</div>`:'');
+  document.getElementById('pdt').textContent=U.goal+' · '+U.times.slice(0,2).join(', ');
+}
+
+// ══ MATCHING ══
+function doMatch(){
+  G('s-load');
+  setTimeout(()=>document.getElementById('b1').style.width='82%',300);
+  setTimeout(()=>document.getElementById('b2').style.width='68%',700);
+  setTimeout(()=>document.getElementById('b3').style.width='91%',1100);
+  setTimeout(()=>document.getElementById('ltxt').textContent='جارٍ ترتيب أفضل Matches...',1600);
+  setTimeout(()=>{initMain();G('s-main');},2500);
+}
+
+function score(p){
+  const lm={b:0,m:1,a:2};
+  let sc=p.base;
+  sc+=(p.subs||[]).filter(x=>U.subs.includes(x)).length*4;
+  sc+=(p.times||[]).filter(t=>U.times.includes(t)).length*3;
+  if(Math.abs((lm[U.level]||1)-(lm[p.lv]||1))<=1) sc+=5;
+  if(p.styles) sc+=(p.styles||[]).filter(x=>U.styles.includes(x)).length*2;
+  return Math.min(99,Math.round(sc));
+}
+
+function initMain(){
+  if(U.name) document.getElementById('greet').textContent='أهلاً '+U.name+' 👋';
+  document.getElementById('gsub').textContent=U.subs.slice(0,3).join(' · ')||'اختار تاب من الأسفل';
+  LB.find(l=>l.me).nm=U.name||'أنت';
+  LB.find(l=>l.me).in=U.name?U.name[0].toUpperCase():'أنت';
+  renderM();buildSch();renderSess();renderLB();renderBD();updPts();
+}
+
+function renderM(){
+  const scored=DB.map(p=>({...p,sc:score(p)})).sort((a,b)=>b.sc-a.sc);
+  let list=scored;
+  if(U.filt==='high') list=scored.filter(p=>p.sc>=75&&p.type!=='n');
+  else if(U.filt==='groups') list=scored.filter(p=>p.type==='g');
+  else if(U.filt==='near') list=scored.filter(p=>p.type==='n');
+
+  let h='';
+  const hasGood=scored.some(p=>p.sc>=70&&p.type!=='n');
+  const nears=scored.filter(p=>p.type==='n');
+  if(!hasGood&&U.filt==='all') h+=`<div class="abox" style="margin:0 1rem .7rem">🟡 مش لاقي perfect match؟ جرب "قريبين" — هتلاقي ناس نفس المادة بوقت مختلف</div>`;
+  if(nears.length&&U.filt==='all') h+=`<div class="gbox" style="margin:0 1rem .7rem">💡 في ${nears.length} شخص قريب جداً منك — اضغط <strong>"قريبين"</strong> وشوف</div>`;
+
+  list.forEach(p=>{
+    const isG=p.type==='g',isN=p.type==='n';
+    const subs=(p.subs||[]).filter(x=>U.subs.includes(x)).slice(0,2).map(x=>`<div class="tag tp">${x}</div>`).join('');
+    const timeTag=(p.times||[]).slice(0,1).map(t=>`<div class="tag tt">${t}</div>`).join('');
+    const goalTag=`<div class="tag ta">${p.goal}</div>`;
+    const ratTag=`<div class="tag tt">⭐ ${p.rat}</div>`;
+    const nBanner=isN?`<div class="abox" style="margin:0 0 8px;padding:7px 10px;font-size:12px">🟡 ${p.nearR} →
+      <button onclick="openTMod(${p.id},event)" style="font-size:11px;padding:3px 9px;margin-right:6px;cursor:pointer;border:.5px solid #EF9F27;border-radius:6px;background:#FFF8EC;color:#854F0B;font-family:var(--f)">اقترح وقت بديل</button></div>`:'';
+    const mems=isG?`<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+      <div style="display:flex">${(p.members||[]).map((m,i)=>`<div class="gav" style="background:${['#EEEDFE','#E1F5EE','#FAEEDA','#FBEAF0'][i%4]};color:${['#534AB7','#0F6E56','#854F0B','#993556'][i%4]}">${m[0]}</div>`).join('')}</div>
+      <span style="font-size:12px;color:var(--t2)">${p.size} أعضاء</span></div>`:'';
+    const cBtn=isN
+      ?`<button class="bc" style="background:#EF9F27" onclick="openTMod(${p.id},event)">🟡 اقترح وقت بديل</button>`
+      :`<button class="bc" onclick="connect(${p.id},event)">${isG?'انضم للجروب ↗':'تواصل معاه ↗'}</button>`;
+
+    h+=`<div class="mc ${isN?'nm':isG?'gc':''}">
+      <div class="mt">
+        <div class="av" style="background:${p.bg};color:${p.tc}">${p.in}</div>
+        <div style="flex:1"><div style="font-size:14px;font-weight:500;color:var(--t1)">${p.nm}${isG?' 👥':''}</div>
+        <div style="font-size:12px;color:var(--t2)">${{b:'Beginner',m:'Intermediate',a:'Advanced',mixed:'Mixed'}[p.lv]||p.lv}${isG?` · ${p.size} أعضاء`:''}</div></div>
+        <div class="sb"><div class="sn">${p.sc}%</div><div class="sl">تطابق</div></div>
+      </div>
+      ${mems}${nBanner}
+      <div class="mtags">${subs}${timeTag}${goalTag}${ratTag}</div>
+      <div class="mf">${cBtn}<button class="bsk" onclick="skipCard(this,event)">تجاوز</button></div>
+    </div>`;
+  });
+
+  if(!list.length) h='<div style="text-align:center;padding:2rem;font-size:14px;color:var(--t2)">مفيش نتايج مناسبة لهذا الفلتر</div>';
+  document.getElementById('mcnt').innerHTML=h;
+}
+
+function filt(f,el){U.filt=f;document.querySelectorAll('.fbar .fc').forEach(c=>c.classList.remove('act'));el.classList.add('act');renderM();}
+function skipCard(btn,ev){ev.stopPropagation();const c=btn.closest('.mc');c.style.cssText='opacity:0;transform:translateX(60px);transition:all .3s';setTimeout(()=>c.remove(),300);}
+
+// ══ CONNECT + FULLY DYNAMIC TIPS ══
+function connect(id,ev){
+  if(ev) ev.stopPropagation();
+  const p=DB.find(x=>x.id===id);if(!p) return;
+  U.partner=p.nm;U.pType=p.type;connCnt++;
+  if(connCnt>=3) BADGES[4].on=true;
+
+  // ── Build 100% dynamic tips unique to this person ──
+  const lm={b:0,m:1,a:2};
+  const myL=lm[U.level]||1,pL=lm[p.lv]||1;
+  const cSubs=(p.subs||[]).filter(x=>U.subs.includes(x));
+  const cTimes=(p.times||[]).filter(t=>U.times.includes(t));
+
+  // Start from person's own tips array (4 unique tips per person in DB)
+  let tips=[...p.T];
+
+  // Override tip 1 if we have specific matching subs
+  if(cSubs.length>0){
+    tips[0]=`📚 عندكم ${cSubs.length} مادة مشتركة: ${cSubs.slice(0,2).join('، ')} — ابدأ بيها وحدد scope الجلسة`;
+  }
+
+  // Override tip 2 based on actual level difference
+  if(pL-myL>1) tips[1]='📊 مستواه أعلى منك بمرحلتين — الجلسة الأولى: اتعلم فقط ومتدفعوش كلامه';
+  else if(pL-myL===1) tips[1]='📊 مستواه أعلى منك بمرحلة — فرصة ذهبية، اسأل كتير بدون خجل';
+  else if(myL-pL>0) tips[1]='📊 مستواك أعلى — الشرح هيثبت معلوماتك وهيساعدك في الامتحان';
+  else tips[1]='📊 نفس المستوى بالظبط — تنافس صحي وتحفيز متبادل';
+
+  // Override tip 3 based on actual shared times
+  if(cTimes.length>0){
+    tips[2]=`⏰ الأفضل تذاكروا في "${cTimes[0]}" — اتفقوا على يوم ثابت كل أسبوع`;
+  } else {
+    tips[2]='⏰ وقتكم مختلف شوية — اقترح له وقت بديل أو يوم أجازة';
+  }
+
+  // Override tip 4 based on user's own goal
+  if(U.goal.includes('درجات')) tips[3]='🎯 ركز على الأسئلة المتوقعة ولو عندكم past papers ابدأ بيهم';
+  else if(U.goal.includes('فهم')) tips[3]='🎯 اسأل "ليه" مش بس "إزاي" — الفهم الحقيقي في التفاصيل';
+  else if(U.goal.includes('سرعة')) tips[3]='🎯 حدد 2-3 topics لكل جلسة — متوسعوش عشان متضيعوش';
+  else if(U.goal.includes('التزام')) tips[3]='🎯 اتفقوا على موعد ثابت كل أسبوع وابعتوا reminder لبعض';
+  else if(U.goal.includes('ضغط')) tips[3]='🎯 الجلسة الأولى: 15 دقيقة تعارف وبعدين ابدأوا — متضغطوش';
+
+  document.getElementById('tips').innerHTML=tips.join('<br>');
+  document.getElementById('ctit').textContent=p.type==='g'?'انضممت للجروب! 🎉':'تم الاتصال! 🎉';
+  document.getElementById('cmsg').textContent=p.type==='g'
+    ?`انضممت لـ "${p.nm}" — هيتواصلوا معاك قريباً 🚀`
+    :`تم الاتصال بـ ${p.nm} — هيتواصل معاك قريباً 🚀`;
+  document.getElementById('cstart').onclick=()=>{
+    U.partner=p.nm;
+    document.getElementById('tpart').textContent=p.nm;
+    G('s-main');tab('t');
+  };
+  G('s-conn');
+}
+
+// ══ SCHEDULE (dynamic, uses real DB) ══
+const SCHCLR=['#7F77DD','#1D9E75','#EF9F27','#D4537E','#378ADD','#6B35B5'];
+const DAYS=['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'];
+const SLOTS=['4:30 م','6:00 م','7:30 م','8:00 م','9:00 م','10:00 م'];
+
+function buildSch(){
+  const cnt=document.getElementById('scnt');
+  const usedSubs=U.subs.length?U.subs:['Data Structures','Algorithms','Calculus'];
+  // pick partners whose subjects overlap with user
+  let pool=DB.filter(p=>p.type!=='n'&&(p.subs||[]).some(s=>usedSubs.includes(s)));
+  if(!pool.length) pool=DB.filter(p=>p.type==='p');
+
+  let h='';
+  usedSubs.slice(0,5).forEach((sub,i)=>{
+    const p=pool[i%pool.length];
+    const scoreP=score(p);
+    const sharedT=(p.times||[]).filter(t=>U.times.includes(t));
+    const chosenTime=sharedT.length?sharedT[0]:SLOTS[i%SLOTS.length];
+    const day=DAYS[i%DAYS.length];
+    // if no shared time, show suggestion
+    const timeLbl=sharedT.length?`${day} الساعة ${SLOTS[i%SLOTS.length]}`:`${day} (مقترح - وقته يختلف)`;
+    const extra=!sharedT.length?`<span style="font-size:11px;color:#854F0B;margin-right:6px">⚠️ وقت مختلف</span>`:'';
+    h+=`<div class="sci" style="animation-delay:${i*0.07}s">
+      <div class="scd" style="background:${SCHCLR[i%SCHCLR.length]}"></div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500;color:var(--t1)">${sub} مع ${p.nm} ${extra}</div>
+        <div style="font-size:12px;color:var(--t2)">${timeLbl} · تطابق ${scoreP}%</div>
+      </div>
+      <button class="sca" onclick="startFromSch(${p.id},'${sub}')">▶ ابدأ</button>
+    </div>`;
+  });
+
+  // Emergency cancel — uses actual DB partner name
+  const canceled=pool[0]||DB[0];
+  const replacer=pool.find(p=>p.id!==canceled.id&&(p.subs||[]).some(s=>usedSubs.includes(s)))||pool[1]||DB[1];
+  h+=`<div class="ebox">
+    <div style="font-size:18px;flex-shrink:0">🚨</div>
+    <div>
+      <strong>${canceled.nm} ألغى جلسة الغد!</strong><br>
+      <span style="font-size:12px;opacity:.8">بنلاقيلك بديل مناسب...</span><br>
+      <button onclick="showRepMod(${replacer.id})" style="font-size:11px;padding:5px 12px;margin-top:5px;cursor:pointer;border:.5px solid #F09595;border-radius:6px;background:#fff;color:#A32D2D;font-family:var(--f)">
+        اعرض البديل المقترح ↗
+      </button>
+    </div>
+  </div>`;
+  cnt.innerHTML=h;
+}
+
+function startFromSch(pid,sub){
+  const p=DB.find(x=>x.id===pid);if(!p) return;
+  U.partner=p.nm;
+  document.getElementById('tpart').textContent=p.nm+(sub?' · '+sub:'');
+  tab('t');
+}
+
+// ══ TIME PROPOSAL MODAL ══
+function openTMod(id,ev){
+  if(ev) ev.stopPropagation();
+  modPid=id;
+  const p=DB.find(x=>x.id===id);if(!p) return;
+  document.getElementById('mpn').textContent=p.nm;
+  const all=['صبح (8–12)','ضهر (12–4)','مسا (4–8)','ليل (8–12)','أيام الأسبوع','أيام الأجازة'];
+  const sugg=p.altT||[];
+  document.getElementById('tch-w').innerHTML=`
+    <div style="font-size:12px;color:var(--t2);margin-bottom:8px">الأوقات الخضراء هي الأوقات المقترحة بناءً على schedule بتاعه</div>
+    ${all.map(t=>`<span class="tchip ${sugg.includes(t)?'sug sel':''}" onclick="selTC(this)">${t}${sugg.includes(t)?' ✓':''}</span>`).join('')}`;
+  document.getElementById('mod-t').style.display='';
+}
+function selTC(el){document.querySelectorAll('.tchip').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');}
+function sendTP(){
+  const sel=document.querySelector('.tchip.sel');
+  if(!sel){toast('⚠️ اختار وقت الأول');return;}
+  const p=DB.find(x=>x.id===modPid);
+  const chosenTime=sel.textContent.replace(' ✓','').trim();
+  closeMod('mod-t');
+  setTimeout(()=>{
+    toast(`✅ تم إرسال اقتراح "${chosenTime}" لـ ${p?p.nm:'الشخص'}`);
+    if(p) setTimeout(()=>connect(p.id,null),800);
+  },300);
+}
+
+// ══ REPLACE MODAL ══
+function showRepMod(pid){
+  repId=pid;
+  document.getElementById('rl').style.display='';
+  document.getElementById('rr').style.display='none';
+  document.getElementById('mod-r').style.display='';
+  setTimeout(()=>{
+    const p=DB.find(x=>x.id===pid)||DB[1];
+    const sc=score(p);
+    const cSubs=(p.subs||[]).filter(x=>U.subs.includes(x));
+    document.getElementById('rc').innerHTML=`
+      <div class="mt" style="margin-bottom:8px">
+        <div class="av" style="background:${p.bg};color:${p.tc}">${p.in}</div>
+        <div style="flex:1"><div style="font-size:14px;font-weight:500;color:var(--t1)">${p.nm}</div>
+        <div style="font-size:12px;color:var(--t2)">${{b:'Beginner',m:'Intermediate',a:'Advanced'}[p.lv]||p.lv} · متاح نفس الوقت ✓</div></div>
+        <div class="sb"><div class="sn">${sc}%</div><div class="sl">تطابق</div></div>
+      </div>
+      <div class="mtags">${cSubs.slice(0,2).map(s=>`<div class="tag tp">${s}</div>`).join('')||'<div class="tag tt">متاح بديل ✓</div>'}<div class="tag tt">⭐ ${p.rat}</div></div>
+      <div style="font-size:12px;color:var(--t2);margin-top:8px;padding-top:8px;border-top:.5px solid var(--b3)">💡 ${p.T[0]}</div>`;
+    document.getElementById('rl').style.display='none';
+    document.getElementById('rr').style.display='';
+  },1800);
+}
+function accReplace(){closeMod('mod-r');setTimeout(()=>{if(repId) connect(repId,null);},300);}
+function closeMod(id){document.getElementById(id).style.display='none';}
+
+// ══ TIMER ══
+function setDur(m,el){
+  document.querySelectorAll('#tab-t .chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');tDur=m;tSec=m*60;
+  if(!tRun) document.getElementById('tdisp').textContent=fmt(tSec);
+}
+function fmt(s){return`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;}
+function startT(){
+  if(tRun)return;tRun=true;
+  document.getElementById('btn-st').style.display='none';
+  document.getElementById('btn-pa').style.display='';
+  document.getElementById('btn-sp').style.display='';
+  tIv=setInterval(()=>{
+    if(tSec>0){tSec--;document.getElementById('tdisp').textContent=fmt(tSec);}
+    else{clearInterval(tIv);tRun=false;endSess();}
+  },1000);
+}
+function pauseT(){
+  if(!tRun)return;clearInterval(tIv);tRun=false;
+  const b=document.getElementById('btn-pa');
+  b.textContent='▶ استمر';b.onclick=()=>{b.textContent='⏸ وقف';b.onclick=pauseT;startT();};
+}
+function stopT(){clearInterval(tIv);tRun=false;endSess();}
+function endSess(){
+  document.getElementById('btn-st').style.display='';
+  document.getElementById('btn-pa').style.display='none';
+  document.getElementById('btn-sp').style.display='none';
+  tSec=tDur*60;document.getElementById('tdisp').textContent=fmt(tSec);
+  document.getElementById('rate-sec').style.display='';
+}
+function rate(t,n){
+  U.ratings[t]=n;
+  document.querySelectorAll(`#st-${t} .star`).forEach((s,i)=>{s.classList.toggle('on',i<n);s.style.color=i<n?'#EF9F27':'';});
+}
+function saveSess(){
+  const pts=Math.round(tDur*1.5)+(U.ratings.c+U.ratings.q)*5;
+  U.pts+=pts;
+  U.sessions.unshift({partner:U.partner||'Study Buddy',subject:document.getElementById('tpart').textContent,duration:tDur,pts,date:'اليوم'});
+  LB.find(l=>l.me).pts=U.pts;LB.sort((a,b)=>b.pts-a.pts).forEach((l,i)=>l.rank=i+1);
+  document.getElementById('rate-sec').style.display='none';
+  tSec=tDur*60;document.getElementById('tdisp').textContent=fmt(tSec);
+  U.ratings={c:0,q:0};['c','q'].forEach(t=>document.querySelectorAll(`#st-${t} .star`).forEach(s=>{s.classList.remove('on');s.style.color='';}));
+  updPts();renderSess();renderLB();renderBD();
+  toast(`🎉 جلسة محفوظة! +${pts} نقطة`);
+}
+function renderSess(){
+  const c=document.getElementById('sess-l');
+  if(!U.sessions.length){c.innerHTML='<div style="text-align:center;font-size:13px;color:var(--t2);padding:1rem">ابدأ جلستك الأولى! ⏱️</div>';return;}
+  c.innerHTML=U.sessions.map(s=>`<div class="si2">
+    <div class="sic">📚</div>
+    <div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--t1)">${s.partner}</div><div style="font-size:12px;color:var(--t2)">${s.duration} دقيقة · ${s.date}</div></div>
+    <div style="font-size:13px;font-weight:500;color:#7F77DD">+${s.pts} pt</div>
+  </div>`).join('');
+}
+function updPts(){document.getElementById('hpts').textContent=`⭐ ${U.pts} pts`;}
+
+// ══ LEADERBOARD & BADGES ══
+function renderLB(){
+  const md=['🥇','🥈','🥉'];
+  document.getElementById('lb-l').innerHTML=LB.map(l=>`<div class="lbi">
+    <div class="lbr ${l.rank<=3?'top':''}">${l.rank<=3?md[l.rank-1]:l.rank}</div>
+    <div class="av" style="background:${l.bg};color:${l.tc};width:32px;height:32px;font-size:12px">${l.in}</div>
+    <div style="flex:1"><div style="font-size:13px;font-weight:${l.me?'500':'400'};color:${l.me?'#7F77DD':'var(--t1)'}">${l.nm}${l.me?' (أنت)':''}</div></div>
+    <div class="lbp">${l.pts.toLocaleString()} pt</div>
+  </div>`).join('');
+}
+function renderBD(){
+  if(U.sessions.length>=1) BADGES[1].on=true;
+  if(U.sessions.length>=3) BADGES[2].on=true;
+  if(U.pts>=200) BADGES[0].on=true;
+  if(connCnt>=3) BADGES[4].on=true;
+  document.getElementById('bd-l').innerHTML=BADGES.map(b=>`<div class="bi ${b.on?'on':''}">
+    <div style="font-size:24px;margin-bottom:5px" class="${b.on?'':'blk'}">${b.icon}</div>
+    <div style="font-size:11px;font-weight:500;color:var(--t1)">${b.nm}</div>
+    <div style="font-size:10px;color:var(--t2);margin-top:2px">${b.on?'✓ محققة':b.desc}</div>
+  </div>`).join('');
+}
+function lbSw(t,el){
+  document.querySelectorAll('#tab-l .fc').forEach(c=>c.classList.remove('act'));el.classList.add('act');
+  document.getElementById('lb-w').style.display=t==='lb'?'':'none';
+  document.getElementById('bd-w').style.display=t==='bd'?'':'none';
+}
+
+// ══ TOAST ══
+function toast(msg){
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;z-index:999;white-space:nowrap;animation:fi .3s ease';
+  el.textContent=msg;document.body.appendChild(el);
+  setTimeout(()=>{el.style.transition='opacity .3s';el.style.opacity='0';setTimeout(()=>el.remove(),300);},2500);
+}
+</script>
+</body>
+</html>
